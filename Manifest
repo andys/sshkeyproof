@@ -1,0 +1,6 @@
+CHANGELOG
+Manifest
+README.md
+Rakefile
+lib/sshkeyauth.rb
+test/test_all.rb
