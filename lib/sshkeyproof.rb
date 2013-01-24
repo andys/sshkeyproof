@@ -13,14 +13,17 @@ module Sshkeyproof
     end
     
     def random
-      @random ||= OpenSSL::Random.random_bytes(10).unpack('H*').first
+      @random ||= OpenSSL::Random.random_bytes(10)
     end
     
     def request
-      ciphertext = @privkey.private_encrypt(random).unpack('H*').first
-      "#{SSHKey.sha1_fingerprint(@pubkey.to_s)}|#{random.unpack('H*').first}|#{ciphertext}"
+      ciphertext = to_hex @privkey.private_encrypt(random)
+      [SSHKey.sha1_fingerprint(@pubkey.to_s),to_hex(random),ciphertext].join('|')
     end
-    
+
+    def to_hex(str)
+      str.unpack('H*').first
+    end
   end
   
   class Server
@@ -31,7 +34,11 @@ module Sshkeyproof
     
     def correct?(key)
       openssl_key = String===key ? OpenSSL::PKey::RSA.new(key) : key
-      @fingerprint && @random && @ciphertext && openssl_key.public_key.public_decrypt([@ciphertext].pack('H*')) == [@random].pack('H*') rescue nil
+      @fingerprint && @random && @ciphertext && openssl_key.public_key.public_decrypt(from_hex(@ciphertext)) == from_hex(@random) rescue nil
+    end
+
+    def from_hex(str)
+      [str].pack('H*')
     end
   end
   

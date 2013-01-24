@@ -2,5 +2,5 @@ CHANGELOG
 Manifest
 README.md
 Rakefile
-lib/sshkeyauth.rb
+lib/sshkeyproof.rb
 test/test_all.rb
